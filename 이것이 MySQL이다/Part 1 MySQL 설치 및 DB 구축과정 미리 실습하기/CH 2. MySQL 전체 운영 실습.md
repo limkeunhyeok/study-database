@@ -34,7 +34,7 @@
 
 ### 2. MySQL을 이용한 데이터베이스 구축 절차
 
-![1](1.png)
+![1](https://user-images.githubusercontent.com/38815618/95840447-1dfc1700-0d7f-11eb-82dd-53161dfddc1d.png)
 
 ### 3. 테이블 외의 데이터베이스 개체의 활용
 

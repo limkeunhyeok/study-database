@@ -18,7 +18,7 @@
 
 ##### 폭포수 모델(Waterfall Model)
 
-![2](2.PNG)
+![2](https://user-images.githubusercontent.com/38815618/95840560-41bf5d00-0d7f-11eb-8fec-9b129888cb73.PNG)
 
 - 가장 오래되고 전통적으로 사용되는 모델
 - 폭포가 떨어지듯 각 단계가 끝나면 다음 단계로 진행
