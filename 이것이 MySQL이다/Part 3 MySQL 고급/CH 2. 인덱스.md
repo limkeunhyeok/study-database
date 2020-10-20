@@ -87,3 +87,69 @@
   - 보조 인덱스의 생성 시에는 데이터 페이지는 그냥 둔 상태에서 별도의 페이지에 인덱스를 구성한다.
   - 보조 인덱스의 인덱스 자체의 리프 페이지는 데이터가 아니라 데이터가 위치하는 주소 값(RID)이다. 클러스터형보다 검색 속도는 더 느리지만 데이터의 입력/수정/삭제는 덜 느리다.
   - 보조 인덱스는 여러 개 생성할 수 있다. 하지만 함부로 남용할 경우에는 오히려 시스템 성능을 떨어뜨리는 결과를 초래할 수 있다.
+
+### 4. 인덱스 생성/변경/삭제
+
+#### 4-1 인덱스 생성
+
+```SQL
+CREATE [UNIQUE/FULLTEXT/SPATIAL] INDEX index_name
+  [index_type]
+  ON tbl_name (index_col_name, ...)
+  [index_option]
+  [algorithm_option | lock_option]
+
+index_col_name:
+  col_name [(length)] [ASC | DESC]
+
+index_type:
+  USING {BTREE | HASH}
+
+index_option:
+  KEY_BLOCK_SIZE [=] value
+  | index_type
+  | WITH PARSER parser_name
+  | COMMENT 'string'
+
+algorithm_option:
+  ALGORITHM [=] {DEFAULT|INPLACE|COPY}
+
+lock_option:
+  LOCK [=] {DEFAULT|NONE|SHARED|EXCLUSIVE}
+```
+
+- UNIQUE 옵션은 고유한 인덱스를 만들 것인지 결정
+- 디폴트는 UNIQUE가 생략된(중복이 허용되는) 인덱스
+- CREATE INDEX로 생성되는 인덱스는 보조 인덱스가 생성
+- ASC와 DESC는 정렬 방식
+- index_type을 생략하면 B-TREE 형식을 사용
+
+#### 4-2 인덱스 제거
+
+```SQL
+DROP INDEX index_name ON tbl_name
+  [algorithm_option | lock_option]
+
+algorithm_option:
+  ALGORITHM [=] {DEFAULT|INPLACE|COPY}
+
+lock_option:
+  LOCK [=] {DEFAULT|NONE|SHARED|EXCLUSIVE}
+```
+
+- 기본 키로 설정된 클러스터형 인덱스의 이름은 항상 PRIMARY로 되어 있으므로 인덱스 이름 부분에 PRIMARY로 써주면 된다. 또한 `ALTER TABLE`문으로 기본 키를 제거해도 클러스터형 인덱스가 제거된다.
+- 인덱스를 모두 제거할 때는 되도록 보조 인덱스부터 삭제하도록 한다.
+- 인덱스를 많이 생성해 놓은 테이블은 인덱스의 용도를 잘 확인한 후에, 인덱스의 활용도가 떨어진다면 과감히 삭제해 줄 필요가 있다. 그렇지 않으면 전반적인 MySQL의 성능이 저하되는 문제를 야기할 수 있다. 한 달에 한 번 또는 일년에 한 번 사용될 인덱스를 계속 유지할 필요는 없다.
+
+### 5. 결론: 인덱스를 생성해야 하는 경우와 그렇지 않은 경우
+
+- 인덱스는 열 단위에 생성된다.
+- WHERE절에서 사용되는 열에 인덱스를 만들어야 한다.
+- WHERE절에 사용되더라도 자주 사용해야 가치가 있다.
+- 데이터의 중복도가 높은 열은 인덱스를 만들어도 별 효과가 없다.
+- 외래 키를 지정한 열에는 자동으로 외래 키 인덱스가 생성된다.
+- JOIN에 자주 사용되는 열에는 인덱스를 생성해 주는 것이 좋다.
+- INSERT/UPDATE/DELETE가 얼마나 자주 일어나는지를 고려해야 한다.
+- 클러스터형 인덱스는 테이블당 하나만 생성할 수 있다.
+- 클러스터형 인덱스가 테이블에 아예 없는 것이 좋은 경우도 있다.
+- 사용하지 않는 인덱스는 제거하자
